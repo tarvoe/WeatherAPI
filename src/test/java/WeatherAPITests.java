@@ -4,14 +4,17 @@ import java.net.URL;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-
+import Repository.OpenWeatherAPI;
 public class WeatherAPITests {
+
+    String countryCode = "EE";
+    String city = "Tallinn";
 
     @Test
     public void doesReturnForecastUrl() throws Exception {
 
         //Näidissisend forecastUrlile
-        final String forecastUrl = "tere";
+        final URL forecastUrl = OpenWeatherAPI.weatherRequestURL(countryCode, city);
 
         //Testib kas forecastUrl on URL klassist
         assertThat(forecastUrl, instanceOf(URL.class));
@@ -50,7 +53,7 @@ public class WeatherAPITests {
     public void doesReturnGeographicalCoordinates() throws Exception {
 
         //Siia pärast: openWeatherApi.getGeographicalCoordinates vms, mis tagastab linna koordinaadid
-        final JSONObject coordinatesResponse = openWeatherAPI.getGeoCoordsOfRequestedCity(countryCode, city, key);
+        final JSONObject coordinatesResponse = OpenWeatherAPI.getGeographicalCoordinatesOfRequestedCity(countryCode, city, key);
         Boolean responseHasLatitude = coordinatesResponse.has("lat");
         Boolean responseHasLongitude = coordinatesResponse.has("lon");
         Boolean hasLatitudeAndLongitude = responseHasLatitude && responseHasLongitude;
