@@ -7,8 +7,8 @@ import static org.junit.Assert.assertThat;
 import Repository.OpenWeatherAPI;
 public class WeatherAPITests {
 
-    String countryCode = "EE";
-    String city = "Tallinn";
+    private String countryCode = "EE";
+    private String city = "Tallinn";
 
     @Test
     public void doesReturnForecastUrl() throws Exception {
@@ -21,15 +21,12 @@ public class WeatherAPITests {
     }
 
     @Test
-    public void doesConnectToAPI() throws Exception {
+    public void doesTheRequestConnectToAPI() throws Exception {
 
-        // Siia pärast : openWeatherApi.getStatusCode vms mis tagastab lehekülje staatuse
-        final Integer responseStatusCode = 2;
-
-        int statusCode = responseStatusCode;
+        int statusCode = OpenWeatherAPI.getWeatherApiResponseStatus(countryCode, city);
         assertEquals(statusCode, 200);
     }
-
+/*
     @Test
     public void doesReturnThreeDayForecast() throws Exception {
 
@@ -59,6 +56,6 @@ public class WeatherAPITests {
         Boolean hasLatitudeAndLongitude = responseHasLatitude && responseHasLongitude;
         assertEquals(true, hasLatitudeAndLongitude);
     }
-
+*/
 }
 
