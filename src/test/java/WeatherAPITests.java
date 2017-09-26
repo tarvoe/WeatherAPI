@@ -1,4 +1,5 @@
 
+import org.json.JSONArray;
 import org.junit.Test;
 import java.net.URL;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -11,10 +12,10 @@ public class WeatherAPITests {
     private String city = "Tallinn";
 
     @Test
-    public void doesReturnForecastUrl() throws Exception {
+    public void doesReturnCurrentWeatherUrl() throws Exception {
 
         //Näidissisend forecastUrlile
-        final URL forecastUrl = OpenWeatherAPI.weatherRequestURL(countryCode, city);
+        final URL forecastUrl = OpenWeatherAPI.weatherRequestURL(countryCode, city/*, APIToken parameeter siia*/);
 
         //Testib kas forecastUrl on URL klassist
         assertThat(forecastUrl, instanceOf(URL.class));
@@ -23,10 +24,10 @@ public class WeatherAPITests {
     @Test
     public void doesTheRequestConnectToAPI() throws Exception {
 
-        int statusCode = OpenWeatherAPI.getWeatherApiResponseStatus(countryCode, city);
-        assertEquals(statusCode, 200);
-    }
-/*
+        int statusCode = OpenWeatherAPI.getWeatherApiResponseStatus(countryCode, city/*, APIToken parameeter siia*/);
+
+        assertEquals(200, statusCode);
+
     @Test
     public void doesReturnThreeDayForecast() throws Exception {
 
@@ -37,7 +38,8 @@ public class WeatherAPITests {
         assertEquals(3, numberOfForecastsInJsonList);
 
     }
-
+    }
+/*
     @Test
     public void doesReturnHighestAndLowestTemperatureOfEachDay() throws Exception {
 
