@@ -2,36 +2,41 @@ package Repository;
 
 
 
-import com.sun.deploy.net.HttpRequest;
-import com.sun.deploy.net.HttpResponse;
+import jdk.nashorn.internal.parser.JSONParser;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.ParseException;
 
-public class OpenWeatherAPI {
+public class OpenWeatherAPI implements WeatherInterface {
 
     static OkHttpClient client = new OkHttpClient();
 
-    public static URL weatherRequestURL(String countryCode, String city/*, APIToken parameeter siia*/) {
+    @Override
+    public URL buildNewWeatherRequestURL(String countryCode, String city/*, APIToken parameeter siia*/) {
 
-        return new HttpUrl.Builder()
-                .scheme("http")
+            return new HttpUrl.Builder()
+                    .scheme("http")
                 .host("api.openweathermap.org")
                 .addPathSegments("/data/2.5/weather")
                 .addQueryParameter("q", countryCode + "," + city)
                 .build().url();
     }
 
-    public static Integer getWeatherApiResponseStatus(String countryCode, String city /*, APIToken parameeter siia*/) throws IOException {
-        return getResponseCodeOfURL(weatherRequestURL(countryCode, city).toString());
+    @Override
+    public Integer getWeatherApiResponseStatusFromWeb(String countryCode, String city /*, APIToken parameeter siia*/) throws IOException {
+        return getResponseCodeOfURL(buildNewWeatherRequestURL(countryCode, city).toString());
     }
 
-    private static Integer getResponseCodeOfURL(String url) throws IOException {
+    @Override
+    public Integer getResponseCodeOfURL(String url) throws IOException {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
@@ -40,11 +45,25 @@ public class OpenWeatherAPI {
         return response.code();
     }
 
-    public static JSONArray getThreeDaysForecast (String url) throws IOException {
+    @Override
+    public JSONArray getThreeDaysForecastFromWeb(String url) throws IOException, JSONException {
         GetExample threeDayForecast = new GetExample();
-        String response = threeDayForecast.run("http://samples.openweathermap.org/data/2.5/weather?q=London,uk&appid=b1b15e88fa797225412429c1c50c122a1");
-        return null;
+        String response = threeDayForecast.responseBodyFromURL(url);
+        JSONArray responseInJSONArray = makeStringToJSONArray(response);
+        return responseInJSONArray;
     }
 
+    public JSONArray getHighestAndLowestTemperature (String url) throws IOException, JSONException{
 
+        GetExample highestLowest = new GetExample();
+        String response = highestLowest.responseBodyFromURL(url);
+        JSONArray responseInJSONArray = makeStringToJSONArray(response);
+        return responseInJSONArray;
+    }
+
+    public JSONArray makeStringToJSONArray (String dataFromURLBody) throws JSONException {
+        JSONObject jsnobject = new JSONObject(dataFromURLBody);
+        JSONArray threeDayForecast = jsnobject.getJSONArray("weather");
+        return threeDayForecast;
+    }
 }

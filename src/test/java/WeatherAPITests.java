@@ -11,43 +11,51 @@ public class WeatherAPITests {
     private String countryCode = "EE";
     private String city = "Tallinn";
 
-    @Test
-    public void doesReturnCurrentWeatherUrl() throws Exception {
+    OpenWeatherAPI weatherFromTheWeb = new OpenWeatherAPI();
 
-        //Näidissisend forecastUrlile
-        final URL forecastUrl = OpenWeatherAPI.weatherRequestURL(countryCode, city/*, APIToken parameeter siia*/);
+    @Test
+    public void didItReturnAUrl() throws Exception {
+
+        //Tekitab näidissisendi forecastUrlile
+        final URL forecastUrl = weatherFromTheWeb.buildNewWeatherRequestURL(countryCode, city/*, APIToken parameeter siia*/);
 
         //Testib kas forecastUrl on URL klassist
         assertThat(forecastUrl, instanceOf(URL.class));
     }
 
     @Test
-    public void doesTheRequestConnectToAPI() throws Exception {
+    public void didTheRequestConnectToAPI() throws Exception {
 
-        int statusCode = OpenWeatherAPI.getWeatherApiResponseStatus(countryCode, city/*, APIToken parameeter siia*/);
+        int statusCode = weatherFromTheWeb.getWeatherApiResponseStatusFromWeb(countryCode, city/*, APIToken parameeter siia*/);
 
         assertEquals(200, statusCode);
 
+    }
+
     @Test
-    public void doesReturnThreeDayForecast() throws Exception {
+    public void ditItReturnThreeDayForecast() throws Exception {
 
-        // Siia pärast: openWeatherApi.getThreeDayWeather vms, mis tagastab json listi ja tuleb leida listi lenght
-        final JSONArray threeDayForecastResponse = 1;
+        final JSONArray threeDayForecastResponse =
+                weatherFromTheWeb.getThreeDaysForecastFromWeb(weatherFromTheWeb.buildNewWeatherRequestURL(countryCode,city).toString());
 
-        int numberOfForecastsInJsonList = threeDayForecastResponse.length();
-        assertEquals(3, numberOfForecastsInJsonList);
+        int numberOfForecastsInJsonARRAY = threeDayForecastResponse.length();
+        assertEquals(3, numberOfForecastsInJsonARRAY);
 
     }
+
+
+    @Test
+    public void didItReturnTheHighestAndLowestTempForEachDay() throws Exception {
+
+        final JSONArray highestLowestTempResponse =
+                weatherFromTheWeb.getHighestAndLowestTemperature(weatherFromTheWeb.buildNewWeatherRequestURL(countryCode,city).toString());
+
+        int numberOfForecastsInJsonARRAY = highestLowestTempResponse.length();
+        assertEquals(3, numberOfForecastsInJsonARRAY);
     }
+
+
 /*
-    @Test
-    public void doesReturnHighestAndLowestTemperatureOfEachDay() throws Exception {
-
-        //Siia pärast: openWeatherApi.getHighestAndLowestTemperaturesForEachDay vms, mis tagastab kõrgima ja madalaima temperatuuri
-        //TODO: Implement code
-
-    }
-
     @Test
     public void doesReturnGeographicalCoordinates() throws Exception {
 
