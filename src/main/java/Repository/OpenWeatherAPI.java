@@ -20,19 +20,33 @@ public class OpenWeatherAPI implements WeatherInterface {
     static OkHttpClient client = new OkHttpClient();
 
     @Override
-    public URL buildNewWeatherRequestURL(String countryCode, String city/*, APIToken parameeter siia*/) {
+    public URL buildNewSingleWeatherRequestURL(String countryCode, String city, String APPID) {
 
             return new HttpUrl.Builder()
                     .scheme("http")
                 .host("api.openweathermap.org")
                 .addPathSegments("/data/2.5/weather")
                 .addQueryParameter("q", countryCode + "," + city)
+                .addQueryParameter("APPID", APPID)
                 .build().url();
     }
 
     @Override
-    public Integer getWeatherApiResponseStatusFromWeb(String countryCode, String city /*, APIToken parameeter siia*/) throws IOException {
-        return getResponseCodeOfURL(buildNewWeatherRequestURL(countryCode, city).toString());
+    public URL buildNewForecastRequestURL(String countryCode, String city, String APPID) {
+
+        return new HttpUrl.Builder()
+                .scheme("http")
+                .host("api.openweathermap.org")
+                .addPathSegments("/data/2.5/forecast")
+                .addQueryParameter("q", countryCode + "," + city)
+                .addQueryParameter("APPID", APPID)
+                .build().url();
+    }
+
+
+    @Override
+    public Integer getWeatherApiResponseStatusFromWeb(String countryCode, String city, String APPID) throws IOException {
+        return getResponseCodeOfURL(buildNewSingleWeatherRequestURL(countryCode, city, APPID).toString());
     }
 
     @Override

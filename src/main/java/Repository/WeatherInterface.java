@@ -9,9 +9,11 @@ import java.net.URL;
 
 public interface WeatherInterface {
 
-    URL buildNewWeatherRequestURL(String countryCode, String city);
+    URL buildNewSingleWeatherRequestURL(String countryCode, String city, String APPID);
 
-    Integer getWeatherApiResponseStatusFromWeb(String countryCode, String city) throws IOException;
+    URL buildNewForecastRequestURL(String countryCode, String city, String APPID);
+
+    Integer getWeatherApiResponseStatusFromWeb(String countryCode, String city, String APPID) throws IOException;
 
     Integer getResponseCodeOfURL(String url) throws IOException;
 
