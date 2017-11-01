@@ -1,4 +1,5 @@
 
+import Repository.WeatherInterface;
 import org.json.JSONArray;
 import org.junit.Test;
 import java.net.URL;
@@ -12,7 +13,7 @@ public class WeatherAPITests {
     private String city = "Tallinn";
     private String APPID = "0786e4e1ae01d4e119f0260e53a683d0";
 
-    OpenWeatherAPI weatherFromTheWeb = new OpenWeatherAPI();
+    WeatherInterface weatherFromTheWeb = new OpenWeatherAPI();
 
     @Test
     public void didItReturnAUrl() throws Exception {

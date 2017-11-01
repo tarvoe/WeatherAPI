@@ -17,7 +17,11 @@ public interface WeatherInterface {
 
     Integer getResponseCodeOfURL(String url) throws IOException;
 
+    JSONArray getHighestAndLowestTemperature(String url) throws IOException, JSONException;
+
     JSONArray getThreeDaysForecastFromWeb(String url) throws IOException, JSONException;
+
+    JSONArray makeStringToJSONArray(String dataFromURLBody) throws IOException, JSONException;
 
 
 }

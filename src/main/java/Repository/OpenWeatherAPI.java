@@ -17,6 +17,12 @@ import java.text.ParseException;
 
 public class OpenWeatherAPI implements WeatherInterface {
 
+
+
+    static String countryCode3 = "EE";
+    static String city3 = "Tallinn";
+    static String APPID3 = "0786e4e1ae01d4e119f0260e53a683d0";
+
     static OkHttpClient client = new OkHttpClient();
 
     @Override
@@ -43,7 +49,6 @@ public class OpenWeatherAPI implements WeatherInterface {
                 .build().url();
     }
 
-
     @Override
     public Integer getWeatherApiResponseStatusFromWeb(String countryCode, String city, String APPID) throws IOException {
         return getResponseCodeOfURL(buildNewSingleWeatherRequestURL(countryCode, city, APPID).toString());
@@ -61,23 +66,72 @@ public class OpenWeatherAPI implements WeatherInterface {
 
     @Override
     public JSONArray getThreeDaysForecastFromWeb(String url) throws IOException, JSONException {
-        GetExample threeDayForecast = new GetExample();
-        String response = threeDayForecast.responseBodyFromURL(url);
+        OpenWeatherAPI threeDayForecast = new OpenWeatherAPI();
+        String response = threeDayForecast.getResponseBodyFromURL(url);
         JSONArray responseInJSONArray = makeStringToJSONArray(response);
         return responseInJSONArray;
     }
 
+    @Override
     public JSONArray getHighestAndLowestTemperature (String url) throws IOException, JSONException{
 
-        GetExample highestLowest = new GetExample();
-        String response = highestLowest.responseBodyFromURL(url);
+        OpenWeatherAPI highestLowest = new OpenWeatherAPI();
+        String response = highestLowest.getResponseBodyFromURL(url);
         JSONArray responseInJSONArray = makeStringToJSONArray(response);
         return responseInJSONArray;
     }
 
-    public JSONArray makeStringToJSONArray (String dataFromURLBody) throws JSONException {
-        JSONObject jsnobject = new JSONObject(dataFromURLBody);
-        JSONArray threeDayForecast = jsnobject.getJSONArray("weather");
-        return threeDayForecast;
+    public JSONArray makeStringToJSONArray (String dataFromURLBodyInStringForm) throws JSONException {
+        JSONObject jsonObject = new JSONObject(dataFromURLBodyInStringForm);
+        JSONArray dataFromURLBodyInJSONArrayForm = jsonObject.getJSONArray("weather");
+        return dataFromURLBodyInJSONArrayForm;
+    }
+
+    String getResponseBodyFromURL(String url) throws IOException {
+        Request newURLrequest = new Request.Builder()
+                .url(url)
+                .build();
+
+        try (Response response = client.newCall(newURLrequest).execute()) {
+            return response.body().string();
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        OpenWeatherAPI test = new OpenWeatherAPI();
+        String andmed = test.buildNewForecastRequestURL(countryCode3,city3,APPID3).toString();
+        String response = test.getResponseBodyFromURL(andmed);
+        System.out.println(response);
     }
 }
+
+
+
+
+
+/*
+class SingleDayForecastBuilder extends OpenWeatherAPI {
+    public URL buildNewSingleWeatherRequestURL(String countryCode, String city, String APPID) {
+
+        return new HttpUrl.Builder()
+                .scheme("http")
+                .host("api.openweathermap.org")
+                .addPathSegments("/data/2.5/weather")
+                .addQueryParameter("q", countryCode + "," + city)
+                .addQueryParameter("APPID", APPID)
+                .build().url();
+    }
+}
+
+class ThreeDayForecastBuilder extends OpenWeatherAPI {
+    public URL buildNewSingleWeatherRequestURL(String countryCode, String city, String APPID) {
+
+        return new HttpUrl.Builder()
+                .scheme("http")
+                .host("api.openweathermap.org")
+                .addPathSegments("/data/2.5/forecast")
+                .addQueryParameter("q", countryCode + "," + city)
+                .addQueryParameter("APPID", APPID)
+                .build().url();
+    }
+}*/
