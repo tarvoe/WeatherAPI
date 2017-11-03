@@ -3,6 +3,9 @@ import Repository.WeatherInterface;
 import org.json.JSONArray;
 import org.junit.Test;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -40,23 +43,25 @@ public class WeatherAPITests {
     }
 
     @Test
-    public void didItReturnTheHighestAndLowestTempForEachDay() throws Exception {
+    public void didItReturnTheHighestAndLowestTemp() throws Exception {
 
-        final JSONArray highestLowestTempResponse =
-                weatherFromTheWeb.getHighestAndLowestTemperature(weatherFromTheWeb.buildNewSingleWeatherRequestURL(countryCode,city, APPID).toString());
+        final ArrayList<String> highestLowestTempResponse =
+                weatherFromTheWeb.getHighestAndLowestTemperature(weatherFromTheWeb.buildNewForecastRequestURL(countryCode,city, APPID).toString(), 1);
 
-        int numberOfForecastsInJsonARRAY = highestLowestTempResponse.length();
-        assertEquals(3, numberOfForecastsInJsonARRAY);
+        int numberOfForecastsInJsonARRAY = highestLowestTempResponse.size();
+        assertEquals(2, numberOfForecastsInJsonARRAY);
     }
 
     @Test
     public void ditItReturnThreeDayForecast() throws Exception {
 
-        final JSONArray threeDayForecastResponse =
-                weatherFromTheWeb.getThreeDaysForecastFromWeb(weatherFromTheWeb.buildNewSingleWeatherRequestURL(countryCode,city, APPID).toString());
+        final HashMap threeDayForecastResponse =
+                weatherFromTheWeb.getThreeDaysForecastFromWeb(weatherFromTheWeb.buildNewForecastRequestURL(countryCode,city, APPID).toString());
 
-        int numberOfForecastsInJsonARRAY = threeDayForecastResponse.length();
-        assertEquals(3, numberOfForecastsInJsonARRAY);
+
+
+        int numberOfForecastsInHashmap = threeDayForecastResponse.size();
+        assertEquals(3, numberOfForecastsInHashmap);
 
     }
 /*

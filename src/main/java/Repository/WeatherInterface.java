@@ -6,6 +6,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public interface WeatherInterface {
 
@@ -17,9 +19,9 @@ public interface WeatherInterface {
 
     Integer getResponseCodeOfURL(String url) throws IOException;
 
-    JSONArray getHighestAndLowestTemperature(String url) throws IOException, JSONException;
+    ArrayList getHighestAndLowestTemperature(String url, int indexOfTheDay) throws IOException, JSONException;
 
-    JSONArray getThreeDaysForecastFromWeb(String url) throws IOException, JSONException;
+    HashMap getThreeDaysForecastFromWeb(String url) throws IOException, JSONException;
 
     JSONArray makeStringToJSONArray(String dataFromURLBody) throws IOException, JSONException;
 
