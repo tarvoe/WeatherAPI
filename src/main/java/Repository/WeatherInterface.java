@@ -11,9 +11,6 @@ import java.util.HashMap;
 
 public interface WeatherInterface {
 
-    URL buildNewSingleWeatherRequestURL(String countryCode, String city, String APPID);
-
-    URL buildNewForecastRequestURL(String countryCode, String city, String APPID);
 
     Integer getWeatherApiResponseStatusFromWeb(String countryCode, String city, String APPID) throws IOException;
 
