@@ -24,8 +24,8 @@ public class WeatherAPITests {
     public void didItReturnAUrl() throws Exception {
 
         //Tekitab näidissisendi forecastUrlile
-        final URL singleWeatherRequestURL = urlBuilder.buildNewSingleWeatherRequestURL(countryCode, city, APPID );
-        final URL forecastRequestURL = urlBuilder.buildNewForecastRequestURL(countryCode, city, APPID );
+        final URL singleWeatherRequestURL = urlBuilder.buildNewSingleWeatherRequestURL(city, APPID );
+        final URL forecastRequestURL = urlBuilder.buildNewForecastRequestURL( city, APPID );
 
 
         //Testib kas forecastUrl on URL klassist
@@ -37,7 +37,7 @@ public class WeatherAPITests {
     @Test
     public void didTheRequestConnectToAPI() throws Exception {
 
-        int statusCode = weatherFromTheWeb.getWeatherApiResponseStatusFromWeb(countryCode, city, APPID);
+        int statusCode = weatherFromTheWeb.getWeatherApiResponseStatusFromWeb( city, APPID);
 
         assertEquals(200, statusCode);
 
@@ -45,20 +45,23 @@ public class WeatherAPITests {
     }
 
     @Test
-    public void didItReturnTheHighestAndLowestTemp() throws Exception {
+    public void didItReturnTheHighestAndLowestTempForThreeNextThreeDays() throws Exception {
 
-        final ArrayList<String> highestLowestTempResponse =
-                weatherFromTheWeb.getHighestAndLowestTemperature(urlBuilder.buildNewForecastRequestURL(countryCode,city, APPID).toString(), 1);
+        final HashMap<Object, String> highestLowestTempForNextThreeDays =
+                weatherFromTheWeb.createHashMapOfThreeDayForecast(
+                        weatherFromTheWeb.makeStringToJSONArray(
+                                weatherFromTheWeb.getResponseBodyFromURL(urlBuilder.buildNewForecastRequestURL(city, APPID).toString())));
 
-        int numberOfForecastsInJsonARRAY = highestLowestTempResponse.size();
-        assertEquals(2, numberOfForecastsInJsonARRAY);
+        int numberOfForecastsInJsonARRAY = highestLowestTempForNextThreeDays.size();
+        assertEquals(3, numberOfForecastsInJsonARRAY);
     }
 
+    /*
     @Test
     public void ditItReturnThreeDayForecast() throws Exception {
 
         final HashMap threeDayForecastResponse =
-                weatherFromTheWeb.getThreeDaysForecastFromWeb(urlBuilder.buildNewForecastRequestURL(countryCode,city, APPID).toString());
+                weatherFromTheWeb.getThreeDaysForecastFromWeb(urlBuilder.buildNewForecastRequestURL(city, APPID).toString());
 
 
 

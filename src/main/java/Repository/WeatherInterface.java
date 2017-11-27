@@ -12,15 +12,19 @@ import java.util.HashMap;
 public interface WeatherInterface {
 
 
-    Integer getWeatherApiResponseStatusFromWeb(String countryCode, String city, String APPID) throws IOException;
+    Integer getWeatherApiResponseStatusFromWeb( String city, String APPID) throws IOException;
 
     Integer getResponseCodeOfURL(String url) throws IOException;
 
-    ArrayList getHighestAndLowestTemperature(String url, int indexOfTheDay) throws IOException, JSONException;
+    //ArrayList getHighestAndLowestTemperatureForTheNextThreeDays(String url, int indexOfTheDay) throws IOException, JSONException;
 
-    HashMap getThreeDaysForecastFromWeb(String url) throws IOException, JSONException;
+    HashMap<Object, String> createHashMapOfThreeDayForecast(JSONArray jsonAndmed)throws JSONException;
+
+    //HashMap getThreeDaysForecastFromWeb(String url) throws IOException, JSONException;
 
     JSONArray makeStringToJSONArray(String dataFromURLBody) throws IOException, JSONException;
+
+    String getResponseBodyFromURL(String url) throws IOException;
 
 
 }
