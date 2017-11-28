@@ -18,11 +18,11 @@ public interface WeatherInterface {
 
     //ArrayList getHighestAndLowestTemperatureForTheNextThreeDays(String url, int indexOfTheDay) throws IOException, JSONException;
 
-    HashMap<Object, String> createHashMapOfThreeDayForecast(JSONArray jsonAndmed)throws JSONException;
+    HashMap<String, Object> createHashMapOfThreeDayForecast(JSONArray jsonAndmed)throws JSONException;
 
     //HashMap getThreeDaysForecastFromWeb(String url) throws IOException, JSONException;
 
-    JSONArray makeStringToJSONArray(String dataFromURLBody) throws IOException, JSONException;
+    JSONArray getWeatherPredictionsForEachTimeInJSONArrayFormFromUrlResponse(String dataFromURLBody) throws IOException, JSONException;
 
     String getResponseBodyFromURL(String url) throws IOException;
 

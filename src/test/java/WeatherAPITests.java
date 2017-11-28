@@ -4,7 +4,6 @@ import WeatherRequests.UrlBuilderInterface;
 import Repository.WeatherInterface;
 import org.junit.Test;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -21,35 +20,30 @@ public class WeatherAPITests {
     UrlBuilderInterface urlBuilder = new UrlBuilder();
 
     @Test
-    public void didItReturnAUrl() throws Exception {
-
-        //Tekitab näidissisendi forecastUrlile
+    public void didItReturnASingleWeatherRequestUrl() throws Exception {
         final URL singleWeatherRequestURL = urlBuilder.buildNewSingleWeatherRequestURL(city, APPID );
-        final URL forecastRequestURL = urlBuilder.buildNewForecastRequestURL( city, APPID );
-
-
-        //Testib kas forecastUrl on URL klassist
         assertThat(singleWeatherRequestURL, instanceOf(URL.class));
+    }
+
+    @Test
+    public void didItReturnAForecastWeatherRequestUrl() throws Exception {
+        final URL forecastRequestURL = urlBuilder.buildNewForecastRequestURL( city, APPID );
         assertThat(forecastRequestURL, instanceOf(URL.class));
     }
 
 
     @Test
     public void didTheRequestConnectToAPI() throws Exception {
-
         int statusCode = weatherFromTheWeb.getWeatherApiResponseStatusFromWeb( city, APPID);
-
         assertEquals(200, statusCode);
-
-
     }
 
     @Test
     public void didItReturnTheHighestAndLowestTempForThreeNextThreeDays() throws Exception {
 
-        final HashMap<Object, String> highestLowestTempForNextThreeDays =
+        final HashMap<String, Object> highestLowestTempForNextThreeDays =
                 weatherFromTheWeb.createHashMapOfThreeDayForecast(
-                        weatherFromTheWeb.makeStringToJSONArray(
+                        weatherFromTheWeb.getWeatherPredictionsForEachTimeInJSONArrayFormFromUrlResponse(
                                 weatherFromTheWeb.getResponseBodyFromURL(urlBuilder.buildNewForecastRequestURL(city, APPID).toString())));
 
         int numberOfForecastsInJsonARRAY = highestLowestTempForNextThreeDays.size();

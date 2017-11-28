@@ -17,8 +17,8 @@ import java.util.*;
 public class OpenWeatherAPI implements WeatherInterface {
 
 
-    public static final Double ESIALGNE_VAARTUS_MINTEMPERATUURILE = 200.0;
-    public static final Double ESIALGNE_VAARTUS_MAXTEMPERATUURILE = -150.0;
+    public static final Double INITIAL_VALUE_FOR_MINIMUMTEMPERATURE = 200.0;
+    public static final Double INITIAL_VALUE_FOR_MAXIMUMTEMPERATURE = -150.0;
 
     static String countryCode3 = "EE";
     static String city3 = "Tallinn";
@@ -44,10 +44,9 @@ public class OpenWeatherAPI implements WeatherInterface {
     }
 
     @Override
-    public JSONArray makeStringToJSONArray (String dataFromURLBodyInStringForm) throws JSONException {
+    public JSONArray getWeatherPredictionsForEachTimeInJSONArrayFormFromUrlResponse(String dataFromURLBodyInStringForm) throws JSONException {
         JSONObject jsonObject = new JSONObject(dataFromURLBodyInStringForm);
-        JSONArray dataFromURLBodyInJSONArrayForm = jsonObject.getJSONArray("list");
-        return dataFromURLBodyInJSONArrayForm;
+        return jsonObject.getJSONArray("list");
     }
 
     @Override
@@ -61,110 +60,72 @@ public class OpenWeatherAPI implements WeatherInterface {
         }
     }
 
+    public ArrayList<Double> getLanLotOfCityFromUrlResponseInArrayList (String dataFromURLBodyInStringForm) throws JSONException {
+        JSONObject jsonObject = new JSONObject(dataFromURLBodyInStringForm);
+        Double linnaLon = Double.parseDouble(jsonObject.getJSONObject("city").getJSONObject("coord").getString("lon"));
+        Double linnaLat = Double.parseDouble(jsonObject.getJSONObject("city").getJSONObject("coord").getString("lat"));
+        ArrayList<Double> latjalon = new ArrayList<>();
+        latjalon.add(linnaLon);
+        latjalon.add(linnaLat);
+        return latjalon;
+    }
+
+    public Double getMaxTemp (JSONArray dataFromURLBodyInJSONForm, Integer numberInArray) throws JSONException {
+        return Double.parseDouble(dataFromURLBodyInJSONForm.getJSONObject(numberInArray).getJSONObject("main").getString("temp_max"));
+    }
+
+    public Double getMinTemp (JSONArray dataFromURLBodyInJSONForm, Integer numberInArray) throws JSONException {
+        return Double.parseDouble(dataFromURLBodyInJSONForm.getJSONObject(numberInArray).getJSONObject("main").getString("temp_min"));
+    }
+
+    public String getDateInText (JSONArray dataFromURLBodyInJSONForm, Integer numberInArray) throws JSONException {
+        return dataFromURLBodyInJSONForm.getJSONObject(numberInArray).getString("dt_txt").substring(0, 10);
+    }
+
 
     @Override
-    public HashMap<Object, String> createHashMapOfThreeDayForecast (JSONArray jsonAndmed) throws JSONException {
-        double minTemperatuur = ESIALGNE_VAARTUS_MINTEMPERATUURILE;
-        double maxTemperatuur = ESIALGNE_VAARTUS_MAXTEMPERATUURILE;
-        HashMap<Object, String> kolmPaevaKoosIlmaga = new HashMap<>();
-        ArrayList<Double> minmaxtempid = new ArrayList<>();
-
-        //Kogu array läbi itereerimine, et saada kätte just järgmised kolm päeva koos nende miinimum ja maksimum temperatuuridega
-
-        for(int i=0; i < jsonAndmed.length(); i++) {
-
-            /* Kontrollime ega number i jsonobjekti kuupäev pole sama mis esimese objekti kuupäev, sest esimese jsonobjekti kuupäev on alati esimene
-             päev ja esimese päeva kohta me andmeid ei taha */
-
-            if (Objects.equals(jsonAndmed.getJSONObject(i).getString("dt_txt").substring(0, 10),
-                    jsonAndmed.getJSONObject(0).getString("dt_txt").substring(0, 10))) {
-                i = i;
-
-            /* Kontrollime kas järgmine i-st järgmine jsonobjekt on olemas - see annab meile teada, kas me oleme array lõppu jõudnud või mitte
-               Seejärel vaatame veel kas i-st järgmine jsonobjekt on sama kuupäevaga - see annab meile aimu kas me oleme arrays kõik ühe päeva
-               piires olevad ennustused läbi käinud (kuna ennustused on iga 3h tagant)    */
-
-            } else if (!jsonAndmed.isNull(i + 1) &&
-                    Objects.equals(jsonAndmed.getJSONObject(i).getString("dt_txt").substring(0, 10),
-                            jsonAndmed.getJSONObject(i + 1).getString("dt_txt").substring(0, 10))
-                    ) {
-                if (Double.parseDouble(jsonAndmed.getJSONObject(i).getJSONObject("main").getString("temp_max")) > maxTemperatuur) {
-                    maxTemperatuur = Double.parseDouble(jsonAndmed.getJSONObject(i).getJSONObject("main").getString("temp_max"));
+    public HashMap<String, Object> createHashMapOfThreeDayForecast (JSONArray dataInJsonArray) throws JSONException {
+        double minTemperatuur = INITIAL_VALUE_FOR_MINIMUMTEMPERATURE;
+        double maxTemperatuur = INITIAL_VALUE_FOR_MAXIMUMTEMPERATURE;
+        HashMap<String, Object> threeDaysWithTheirMinAndMaxTemperatures = new HashMap<>();
+        ArrayList<Double> minAndMaxTemperatures = new ArrayList<>();
+        for(int i=0; i < dataInJsonArray.length(); i++) {
+            if (!Objects.equals(getDateInText(dataInJsonArray, i), getDateInText(dataInJsonArray, 0)) &&
+                    (!dataInJsonArray.isNull(i + 1) && (Objects.equals(getDateInText(dataInJsonArray, i), getDateInText(dataInJsonArray,i+1)))) ){
+                if (getMaxTemp(dataInJsonArray, i) > maxTemperatuur) {
+                    maxTemperatuur = getMaxTemp(dataInJsonArray, i);
                 }
-                if (Double.parseDouble(jsonAndmed.getJSONObject(i).getJSONObject("main").getString("temp_min")) < minTemperatuur) {
-                    minTemperatuur = Double.parseDouble(jsonAndmed.getJSONObject(i).getJSONObject("main").getString("temp_min"));
+                if (getMinTemp(dataInJsonArray, i) < minTemperatuur) {
+                    minTemperatuur = getMinTemp(dataInJsonArray, i);
                 }
-
-            /* Kui näeme, et me oleme arrays ühe konkreetse päeva piires viimase jsonobjekti juures, vaatame viimast korda ega seal mintemp
-               või maxtemp ei muutu, kui muutub siis teeme muudatuse, seejärel lisame min- ja maxtempid minmaxtemp arraysse ja lisame Hashmapi
-               minmaxtemp array ja kuupäeva mis nende temperatuuridega kokku käib    */
-
-            } else {
-                if (Double.parseDouble(jsonAndmed.getJSONObject(i).getJSONObject("main").getString("temp_max")) > maxTemperatuur) {
-                    maxTemperatuur = Double.parseDouble(jsonAndmed.getJSONObject(i).getJSONObject("main").getString("temp_max"));
+            } else if (!Objects.equals(getDateInText(dataInJsonArray, i), getDateInText(dataInJsonArray, 0)) &&
+                    (dataInJsonArray.isNull(i + 1) || (!Objects.equals(getDateInText(dataInJsonArray, i), getDateInText(dataInJsonArray,i+1))))) {
+                if (getMaxTemp(dataInJsonArray, i) > maxTemperatuur) {
+                    maxTemperatuur = getMaxTemp(dataInJsonArray, i);
                 }
-                if (Double.parseDouble(jsonAndmed.getJSONObject(i).getJSONObject("main").getString("temp_min")) < minTemperatuur) {
-                    minTemperatuur = Double.parseDouble(jsonAndmed.getJSONObject(i).getJSONObject("main").getString("temp_min"));
+                if (getMinTemp(dataInJsonArray, i) < minTemperatuur) {
+                    minTemperatuur = getMinTemp(dataInJsonArray, i);
                 }
-                minmaxtempid.add(maxTemperatuur);
-                minmaxtempid.add(minTemperatuur);
-                //Minmax array ja kuupäeva lisamine hashmappi
-                if (kolmPaevaKoosIlmaga.size() < 3) {
-                    kolmPaevaKoosIlmaga.put(minmaxtempid.clone(), jsonAndmed.getJSONObject(i).getString("dt_txt").substring(0, 10));
+                minAndMaxTemperatures.add(maxTemperatuur);
+                minAndMaxTemperatures.add(minTemperatuur);
+                if (threeDaysWithTheirMinAndMaxTemperatures.size() < 3) {
+                    threeDaysWithTheirMinAndMaxTemperatures.put( getDateInText(dataInJsonArray, i), minAndMaxTemperatures.clone());
                 }
-                //Vahemuutujate tühjendamine
-                minmaxtempid.clear();
-                maxTemperatuur = ESIALGNE_VAARTUS_MAXTEMPERATUURILE;
-                minTemperatuur = ESIALGNE_VAARTUS_MINTEMPERATUURILE;
+                minAndMaxTemperatures.clear();
+                maxTemperatuur = INITIAL_VALUE_FOR_MAXIMUMTEMPERATURE;
+                minTemperatuur = INITIAL_VALUE_FOR_MINIMUMTEMPERATURE;
             }
         }
-        return kolmPaevaKoosIlmaga;
+        return threeDaysWithTheirMinAndMaxTemperatures;
     }
 
 
     public static void main(String[] args) throws IOException, JSONException {
-        System.out.println("Jõhkralt kole funktsioon ma tean");
+        OpenWeatherAPI test = new OpenWeatherAPI();
+        UrlBuilder urliehtiaja = new UrlBuilder();
+        JSONArray testAndmed = test.getWeatherPredictionsForEachTimeInJSONArrayFormFromUrlResponse(test.getResponseBodyFromURL(urliehtiaja.buildNewForecastRequestURL(city3, APPID3).toString()));
+        HashMap <String, Object> andmed = test.createHashMapOfThreeDayForecast(testAndmed);
+        System.out.println(andmed);
+
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-// Võibolla läheb veel vaja
-/*
-    @Override
-    public HashMap<String, ArrayList> getThreeDaysForecastFromWeb(String url) throws IOException, JSONException {
-        OpenWeatherAPI threeDayForecast = new OpenWeatherAPI();
-        String response = threeDayForecast.getResponseBodyFromURL(url);
-        HashMap<String,ArrayList> days= new HashMap<>();
-        JSONArray responseInJSONArray = makeStringToJSONArray(response);
-        for (int i = 0; i<3; i++){
-            ArrayList<String> minmaxtemp = threeDayForecast.getHighestAndLowestTemperatureForTheNextThreeDays(url, i);
-            String oneDay = responseInJSONArray.getJSONObject(i).getString("dt_txt");
-            days.put(oneDay, minmaxtemp);
-        }
-        return days;
-    }
-
-    /*@Override
-    public ArrayList<String> getHighestAndLowestTemperatureForTheNextThreeDays (String url, int indexOfTheDay) throws IOException, JSONException{
-        OpenWeatherAPI highestLowest = new OpenWeatherAPI();
-        ArrayList<String> hilotemperatures = new ArrayList<>();
-
-        String response = highestLowest.getResponseBodyFromURL(url);
-        JSONArray responseInJSONArray = makeStringToJSONArray(response);
-
-        String MAXtemp = responseInJSONArray.getJSONObject(indexOfTheDay).getJSONObject("main").getString("temp_max");
-        String MINtemp = responseInJSONArray.getJSONObject(indexOfTheDay).getJSONObject("main").getString("temp_min");
-
-        hilotemperatures.add(MAXtemp);
-        hilotemperatures.add(MINtemp);
-        return hilotemperatures;
-    }*/
