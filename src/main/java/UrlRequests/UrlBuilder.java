@@ -1,12 +1,12 @@
-package WeatherRequests;
+package UrlRequests;
 
 import okhttp3.HttpUrl;
 
 import java.net.URL;
 
-public class UrlBuilder implements UrlBuilderInterface {
+public class UrlBuilder {
 
-    public URL buildNewForecastRequestURL( String city, String APPID) {
+    public URL buildNewForecastRequestURL(String city, String APPID) {
 
         return new HttpUrl.Builder()
                 .scheme("http")

@@ -1,15 +1,25 @@
 
-import WeatherRequests.UrlBuilder;
-import WeatherRequests.UrlBuilderInterface;
-import Repository.WeatherInterface;
+import InputOutputFileFunctions.FileController;
+import InputOutputFileFunctions.UserInputController;
+import ResponseFunctions.ResponseController;
+import UrlRequests.UrlBuilder;
+import MainFunctions.WeatherInterface;
+import org.json.JSONObject;
 import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Scanner;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import Repository.OpenWeatherAPI;
+import MainFunctions.OpenWeatherAPI;
 public class WeatherAPITests {
 
     private String countryCode = "EE";
@@ -17,7 +27,10 @@ public class WeatherAPITests {
     private String APPID = "0786e4e1ae01d4e119f0260e53a683d0";
 
     WeatherInterface weatherFromTheWeb = new OpenWeatherAPI();
-    UrlBuilderInterface urlBuilder = new UrlBuilder();
+    ResponseController responseController = new ResponseController();
+    UrlBuilder urlBuilder = new UrlBuilder();
+    UserInputController userInputController = new UserInputController();
+    FileController fileController = new FileController();
 
     @Test
     public void didItReturnASingleWeatherRequestUrl() throws Exception {
@@ -31,49 +44,62 @@ public class WeatherAPITests {
         assertThat(forecastRequestURL, instanceOf(URL.class));
     }
 
-
     @Test
     public void didTheRequestConnectToAPI() throws Exception {
-        int statusCode = weatherFromTheWeb.getWeatherApiResponseStatusFromWeb( city, APPID);
+        int statusCode = responseController.getWeatherApiResponseStatusFromWeb( city, APPID);
         assertEquals(200, statusCode);
     }
 
     @Test
     public void didItReturnTheHighestAndLowestTempForThreeNextThreeDays() throws Exception {
-
-        final HashMap<String, Object> highestLowestTempForNextThreeDays =
-                weatherFromTheWeb.createHashMapOfThreeDayForecast(
-                        weatherFromTheWeb.getWeatherPredictionsForEachTimeInJSONArrayFormFromUrlResponse(
-                                weatherFromTheWeb.getResponseBodyFromURL(urlBuilder.buildNewForecastRequestURL(city, APPID).toString())));
-
-        int numberOfForecastsInJsonARRAY = highestLowestTempForNextThreeDays.size();
+        URL url = urlBuilder.buildNewForecastRequestURL(city, APPID);
+        String dataFromURLBodyInStringForm = responseController.getResponseBodyFromURL(url);
+        JSONObject dataInJSONFormat = responseController.makeStringResponseToJSONObject(dataFromURLBodyInStringForm);
+        final HashMap<String, Object> highestLowestTempsForNextThreeDays = weatherFromTheWeb.createHashMapOfThreeDayForecast(dataInJSONFormat);
+        int numberOfForecastsInJsonARRAY = highestLowestTempsForNextThreeDays.size();
         assertEquals(3, numberOfForecastsInJsonARRAY);
     }
 
-    /*
     @Test
-    public void ditItReturnThreeDayForecast() throws Exception {
-
-        final HashMap threeDayForecastResponse =
-                weatherFromTheWeb.getThreeDaysForecastFromWeb(urlBuilder.buildNewForecastRequestURL(city, APPID).toString());
-
-
-
-        int numberOfForecastsInHashmap = threeDayForecastResponse.size();
-        assertEquals(3, numberOfForecastsInHashmap);
-
+    public void didItReturnLatitudeAndLonitude() throws Exception {
+        URL url = urlBuilder.buildNewForecastRequestURL(city, APPID);
+        String dataFromURLBodyInStringForm = responseController.getResponseBodyFromURL(url);
+        JSONObject dataFromURLBodyInJSONForm= responseController.makeStringResponseToJSONObject(dataFromURLBodyInStringForm);
+        final ArrayList<Double> lanandlot = weatherFromTheWeb.getLanLotOfCityFromUrlResponseInArrayList(dataFromURLBodyInJSONForm);
+        assertEquals(2, lanandlot.size());
     }
-/*
+
     @Test
-    public void doesReturnGeographicalCoordinates() throws Exception {
-
-        //Siia pärast: openWeatherApi.getGeographicalCoordinates vms, mis tagastab linna koordinaadid
-        final JSONObject coordinatesResponse = OpenWeatherAPI.getGeographicalCoordinatesOfRequestedCity(countryCode, city, key);
-        Boolean responseHasLatitude = coordinatesResponse.has("lat");
-        Boolean responseHasLongitude = coordinatesResponse.has("lon");
-        Boolean hasLatitudeAndLongitude = responseHasLatitude && responseHasLongitude;
-        assertEquals(true, hasLatitudeAndLongitude);
+    public void didItMakeStringToJSONObject () throws Exception {
+        URL url = urlBuilder.buildNewForecastRequestURL(city, APPID);
+        String dataFromURLBodyInStringForm = responseController.getResponseBodyFromURL(url);
+        final JSONObject jsonObject = responseController.makeStringResponseToJSONObject(dataFromURLBodyInStringForm);
+        assertThat(jsonObject, instanceOf(JSONObject.class));
     }
-*/
+
+    // Küsi õppejõult abi
+    @Test
+    public void shouldTakeUserInput() throws IOException {
+        String data = "1" +
+                "\nTallinn";
+        InputStream in = new ByteArrayInputStream(data.getBytes());
+        System.setIn(in);
+
+        assertEquals("Tallinn", userInputController.userInputTaker());
+    }
+
+    @Test
+    public void didItReturnACorrectFilePath(){
+        String fileName = "input.txt";
+        final String file = fileController.filePathConstructor(fileName);
+        assertEquals("C:\\Users\\Tarvo\\IdeaProjects\\"+ fileName, file);
+    }
+
+    @Test
+    public void didItReadAFile () throws IOException {
+        String fileLocation = "C:\\Users\\Tarvo\\IdeaProjects\\input.txt";
+        List<String> linesInFile = fileController.fileReader(fileLocation);
+        assertEquals("Tallinn", linesInFile.get(0));
+    }
 }
 
