@@ -19,6 +19,8 @@ import java.util.Scanner;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+
 import MainFunctions.OpenWeatherAPI;
 public class WeatherAPITests {
 
@@ -51,11 +53,15 @@ public class WeatherAPITests {
     }
 
     @Test
+    public void didTheRequeassastConnectToAPI() throws Exception {
+        ResponseController controllerMock = mock(ResponseController.class);
+    }
+    @Test
     public void didItReturnTheHighestAndLowestTempForThreeNextThreeDays() throws Exception {
         URL url = urlBuilder.buildNewForecastRequestURL(city, APPID);
         String dataFromURLBodyInStringForm = responseController.getResponseBodyFromURL(url);
         JSONObject dataInJSONFormat = responseController.makeStringResponseToJSONObject(dataFromURLBodyInStringForm);
-        final HashMap<String, Object> highestLowestTempsForNextThreeDays = weatherFromTheWeb.createHashMapOfThreeDayForecast(dataInJSONFormat);
+        final HashMap<String, Object> highestLowestTempsForNextThreeDays = weatherFromTheWeb.createHashMapOfThreeDayForecast(dataInJSONFormat, responseController);
         int numberOfForecastsInJsonARRAY = highestLowestTempsForNextThreeDays.size();
         assertEquals(3, numberOfForecastsInJsonARRAY);
     }
@@ -65,7 +71,7 @@ public class WeatherAPITests {
         URL url = urlBuilder.buildNewForecastRequestURL(city, APPID);
         String dataFromURLBodyInStringForm = responseController.getResponseBodyFromURL(url);
         JSONObject dataFromURLBodyInJSONForm= responseController.makeStringResponseToJSONObject(dataFromURLBodyInStringForm);
-        final ArrayList<Double> lanandlot = weatherFromTheWeb.getLanLotOfCityFromUrlResponseInArrayList(dataFromURLBodyInJSONForm);
+        final ArrayList<Double> lanandlot = weatherFromTheWeb.getLanLotOfCityFromUrlResponseInArrayList(dataFromURLBodyInJSONForm, responseController);
         assertEquals(2, lanandlot.size());
     }
 
@@ -77,16 +83,7 @@ public class WeatherAPITests {
         assertThat(jsonObject, instanceOf(JSONObject.class));
     }
 
-    // Küsi õppejõult abi
-    @Test
-    public void shouldTakeUserInput() throws IOException {
-        String data = "1" +
-                "\nTallinn";
-        InputStream in = new ByteArrayInputStream(data.getBytes());
-        System.setIn(in);
 
-        assertEquals("Tallinn", userInputController.userInputTaker());
-    }
 
     @Test
     public void didItReturnACorrectFilePath(){
@@ -97,7 +94,7 @@ public class WeatherAPITests {
 
     @Test
     public void didItReadAFile () throws IOException {
-        String fileLocation = "C:\\Users\\Tarvo\\IdeaProjects\\input.txt";
+        String fileLocation = "C:\\Users\\Tarvo\\IdeaProjects\\testDidItReadAFile.txt";
         List<String> linesInFile = fileController.fileReader(fileLocation);
         assertEquals("Tallinn", linesInFile.get(0));
     }

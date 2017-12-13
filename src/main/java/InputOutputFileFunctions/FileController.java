@@ -1,6 +1,6 @@
 package InputOutputFileFunctions;
 
-import java.io.BufferedWriter;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,6 +14,7 @@ public class FileController {
 
         FileController reader = new FileController();
         reader.createNewTxtFile("Tallinn3");
+        System.out.println(reader.fileReader(reader.filePathConstructor("Tallinn.txt")).getClass());
     }
 
     public String filePathConstructor (String filenameWithExtention) {
@@ -21,8 +22,8 @@ public class FileController {
         return file;
     }
 
-    public List<String> fileReader (String file) throws IOException {
-        List<String> lines = Files.readAllLines(Paths.get(file));
+    public List<String> fileReader (String filePath) throws IOException {
+        List<String> lines = Files.readAllLines(Paths.get(filePath));
         return lines;
     }
 
@@ -37,12 +38,12 @@ public class FileController {
                 System.out.println("File already present at the specified location");
             }
         } catch (IOException exception) {
-            System.out.println("Something went wrong");
+            System.out.println("Something went wrong with: "+ cityName);
             exception.printStackTrace();
         }
     }
 
-    public  void fileWriter(List<String> content, String cityName ) throws IOException {
+    public void fileWriter(List<String> content, String cityName ) throws IOException {
         String directory = "C:\\Users\\Tarvo\\IdeaProjects\\";
         FileWriter fw = new FileWriter(new File(directory, cityName+".txt"));
         String newLine = System.getProperty("line.separator");

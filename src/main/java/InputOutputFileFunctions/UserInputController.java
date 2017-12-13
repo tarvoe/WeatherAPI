@@ -10,35 +10,42 @@ public class UserInputController {
 
 
     public static void main(String[] args) throws IOException {
+
+        FileController controller2 = new FileController();
         UserInputController controller = new UserInputController();
-        controller.userInputTaker();
+        controller.useUserInput(controller2);
     }
 
+    public String readUserEnteredCity(){
+        Scanner scanner1 = new Scanner(System.in);
+        System.out.println("Enter the city name: ");
+        return scanner1.next();
+    }
 
-    public List<String> userInputTaker () throws IOException {
+    public String readUserEnteredFileName(){
+        Scanner scanner1 = new Scanner(System.in);
+        System.out.println("Enter the file name with extention: ");
+        return scanner1.next();
+    }
+
+    public List<String> useUserInput(FileController controller) throws IOException {
         System.out.println("Do you want to enter the city name or read it from a file ?");
         System.out.println("Enter 1 if you want to enter the name yourself or enter 2 if you want to read from a file");
         Scanner scanner = new Scanner(System.in);
         String method = scanner.next();
-        List<String> cities = new ArrayList<String>();
-
-        if (Objects.equals(method, "1")) {
-            Scanner scanner1 = new Scanner(System.in);
-            System.out.println("Enter the city name: ");
-            String city2 = scanner1.next();
-            cities.add(city2);
-
+        List<String> cities = new ArrayList<>();
+        if (Objects.equals(method,"1")){
+            readUserEnteredCity();
+            cities.add(readUserEnteredCity());
         }else if (Objects.equals(method, "2")){
-            FileController controller = new FileController();
-            System.out.println("Enter the file name with extention");
-            Scanner scanner1 = new Scanner(System.in);
-            String fileName = scanner1.next();
-            cities = controller.fileReader(controller.filePathConstructor(fileName));
+            String fileName = readUserEnteredFileName();
+            List<String> fileRead = controller.fileReader(controller.filePathConstructor(fileName));
+            cities.addAll(fileRead);
         }else{
-            System.out.println(method.getClass());
-            userInputTaker();
+            useUserInput(controller);
         }
         System.out.println(cities);
         return cities;
     }
+
 }
