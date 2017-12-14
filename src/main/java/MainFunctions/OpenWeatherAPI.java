@@ -2,7 +2,6 @@ package MainFunctions;
 
 
 import InputOutputFileFunctions.FileController;
-import InputOutputFileFunctions.UserInputController;
 import ResponseFunctions.ResponseController;
 import UrlRequests.UrlBuilder;
 import org.json.JSONArray;
@@ -17,39 +16,26 @@ public class OpenWeatherAPI implements WeatherInterface {
 
     private static final Double INITIAL_VALUE_FOR_MINIMUM_TEMPERATURE = 200.0;
     private static final Double INITIAL_VALUE_FOR_MAXIMUM_TEMPERATURE = -150.0;
-    private static String APPID = "0786e4e1ae01d4e119f0260e53a683d0";
-
     private static FileController fileController = new FileController();
-    private static UserInputController userInputController = new UserInputController();
     private static UrlBuilder urlBuilder = new UrlBuilder();
     private static OpenWeatherAPI openWeatherAPI = new OpenWeatherAPI();
 
-
     public static void main(String[] args) throws IOException, JSONException {
-        UserInputController userInputController = new UserInputController();
-        URL url =urlBuilder.buildNewForecastRequestURL("Tallinn",APPID);
-        ResponseController controller = new ResponseController();
-        JSONObject object = controller.makeStringResponseToJSONObject(controller.getResponseBodyFromURL(url));
-        System.out.println(object);
-        /*
-        ResponseController responseController = new ResponseController();
-        OpenWeatherAPI openWeatherAPI = new OpenWeatherAPI();
-        System.out.println(openWeatherAPI.createHashMapOfThreeDayForecast(object,controller));
-        List<String> cities = userInputController.useUserInput(fileController);
-        openWeatherAPI.writeForecastsForNextThreeDaysToAfile(cities, responseController);
-*/
+
     }
+
 
     @Override
     public void writeForecastsForNextThreeDaysToAfile (List<String> cities, ResponseController responseController) throws IOException, JSONException {
-        for (int i = 0 ; i < cities.size(); i++) {
-            URL foreCastUrl = urlBuilder.buildNewForecastRequestURL(cities.get(i), APPID);
+        for (String city : cities) {
+            String APPID = "0786e4e1ae01d4e119f0260e53a683d0";
+            URL foreCastUrl = urlBuilder.buildNewForecastRequestURL(city, APPID);
             String responseBody = responseController.getResponseBodyFromURL(foreCastUrl);
             JSONObject responseInJSON = responseController.makeStringResponseToJSONObject(responseBody);
             String cityName = responseController.getCityName(responseInJSON);
             HashMap<String, Object> threeDays = openWeatherAPI.createHashMapOfThreeDayForecast(responseInJSON, responseController);
             ArrayList<Double> latandlon = openWeatherAPI.getLanLotOfCityFromUrlResponseInArrayList(responseInJSON, responseController);
-            List <String> content = new ArrayList<>();
+            List<String> content = new ArrayList<>();
             content.add(threeDays.toString());
             content.add(latandlon.toString());
             fileController.fileWriter(content, cityName);
@@ -93,16 +79,15 @@ public class OpenWeatherAPI implements WeatherInterface {
                 minTemperatuur = INITIAL_VALUE_FOR_MINIMUM_TEMPERATURE;
             }
         }
-        //System.out.println("The maximum and minimum temperatures in " + responseController.getCityName(dataInJSONFormat) + " for the next three days are:");
         return threeDaysWithTheirMinAndMaxTemperatures;
     }
 
     @Override
     public ArrayList<Double> getLanLotOfCityFromUrlResponseInArrayList (JSONObject dataFromURLBodyInJSONForm, ResponseController responseController) throws JSONException {
-        Double lan = responseController.getLatitude(dataFromURLBodyInJSONForm);
+        Double lat = responseController.getLatitude(dataFromURLBodyInJSONForm);
         Double lon = responseController.getLongitude(dataFromURLBodyInJSONForm);
         ArrayList<Double> latandlon = new ArrayList<>();
-        latandlon.add(lan);
+        latandlon.add(lat);
         latandlon.add(lon);
         return latandlon;
     }

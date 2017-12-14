@@ -12,35 +12,14 @@ public class FileController {
 
     public static void main(String[] args) throws IOException {
 
-        FileController reader = new FileController();
-        reader.createNewTxtFile("Tallinn3");
-        System.out.println(reader.fileReader(reader.filePathConstructor("Tallinn.txt")).getClass());
     }
 
     public String filePathConstructor (String filenameWithExtention) {
-        String file = new File ("C:\\Users\\Tarvo\\IdeaProjects\\"+filenameWithExtention).toString();
-        return file;
+        return new File ("C:\\Users\\Tarvo\\IdeaProjects\\"+filenameWithExtention).toString();
     }
 
     public List<String> fileReader (String filePath) throws IOException {
-        List<String> lines = Files.readAllLines(Paths.get(filePath));
-        return lines;
-    }
-
-    public void createNewTxtFile (String cityName) throws IOException {
-        try {
-            File file = new File("C:\\Users\\Tarvo\\IdeaProjects\\"+cityName+".txt");
-            boolean fvar =file.createNewFile();
-            if (fvar){
-                System.out.println("File has been created successfully");
-            }
-            else{
-                System.out.println("File already present at the specified location");
-            }
-        } catch (IOException exception) {
-            System.out.println("Something went wrong with: "+ cityName);
-            exception.printStackTrace();
-        }
+        return Files.readAllLines(Paths.get(filePath));
     }
 
     public void fileWriter(List<String> content, String cityName ) throws IOException {
@@ -48,10 +27,9 @@ public class FileController {
         FileWriter fw = new FileWriter(new File(directory, cityName+".txt"));
         String newLine = System.getProperty("line.separator");
         fw.write("The maximum and minimum temperatures in " + cityName + " for the next three days are" + newLine);
-        for (int i = 0; i < content.size(); i++) {
-            fw.write(content.get(i) + newLine);
+        for (String aContent : content) {
+            fw.write(aContent + newLine);
         }
-
         fw.close();
     }
 }

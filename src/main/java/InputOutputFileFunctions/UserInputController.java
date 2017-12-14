@@ -16,19 +16,19 @@ public class UserInputController {
         controller.useUserInput(controller2);
     }
 
-    public String readUserEnteredCity(){
+    private String readUserEnteredCity(){
         Scanner scanner1 = new Scanner(System.in);
         System.out.println("Enter the city name: ");
         return scanner1.next();
     }
 
-    public String readUserEnteredFileName(){
+    private String readUserEnteredFileName(){
         Scanner scanner1 = new Scanner(System.in);
         System.out.println("Enter the file name with extention: ");
         return scanner1.next();
     }
 
-    public List<String> useUserInput(FileController controller) throws IOException {
+    private List<String> useUserInput(FileController controller) throws IOException {
         System.out.println("Do you want to enter the city name or read it from a file ?");
         System.out.println("Enter 1 if you want to enter the name yourself or enter 2 if you want to read from a file");
         Scanner scanner = new Scanner(System.in);
